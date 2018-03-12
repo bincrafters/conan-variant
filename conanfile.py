@@ -32,8 +32,8 @@ class VariantConan(ConanFile):
         self.requires("gtest/[>=1.8.0]@bincrafters/stable")
 
     def configure(self):
-        if self.settings.compiler == "Visual Studio" and int(self.settings.compiler.version.value) <= 11:
-            raise ConanException("Requires C++11 initializer_list (MSVC support is > 2012")
+        if self.settings.compiler == "Visual Studio" and int(self.settings.compiler.version.value) <= 12:
+            raise ConanException("Required MSVC > 2013") # Required MSVC >= 2013: https://github.com/mpark/variant/blob/v1.3.0/include/mpark/config.hpp#L11
 
     def source(self):
         # Source for library
