@@ -49,6 +49,9 @@ class VariantConan(ConanFile):
         tools.replace_in_file(os.path.join(extracted_dir, "CMakeLists.txt"),
                               "cmake_minimum_required(VERSION 3.6.3)",
                               "cmake_minimum_required(VERSION 3.1)")
+        tools.replace_in_file(os.path.join(extracted_dir, 'test', "CMakeLists.txt"),
+                              "cmake_minimum_required(VERSION 3.6.3)",
+                              "cmake_minimum_required(VERSION 3.1)")
 
         # Work to remove 'deps' directory (conan will handle them)
         shutil.rmtree(os.path.join(extracted_dir, "3rdparty"))
