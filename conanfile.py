@@ -45,6 +45,11 @@ class VariantConan(ConanFile):
         tools.download("https://raw.githubusercontent.com/google/googletest/release-{version}/googletest/cmake/internal_utils.cmake".format(version=self.deps_cpp_info["gtest"].version),
                         filename=os.path.join(extracted_dir, 'cmake', 'internal_utils.cmake'))
 
+        # Change CMake requirements: some @lasote docker images are not updated.
+        tools.replace_in_file(os.path.join(extracted_dir, "CMakeLists.txt"),
+                              "cmake_minimum_required(VERSION 3.6.3)",
+                              "cmake_minimum_required(VERSION 3.1)")
+
         # Work to remove 'deps' directory (conan will handle them)
         shutil.rmtree(os.path.join(extracted_dir, "3rdparty"))
         tools.replace_in_file(os.path.join(extracted_dir, "test", "CMakeLists.txt"),
