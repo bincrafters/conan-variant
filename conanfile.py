@@ -70,4 +70,7 @@ class VariantConan(ConanFile):
     
     def package_id(self):
         self.info.header_only()
-
+    
+    def package_info(self):
+        if self.settings.compiler == "gcc":
+            self.cpp_info.cppflags = "-std=c++11"
