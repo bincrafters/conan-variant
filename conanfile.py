@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from conans import ConanFile, CMake, tools
+from conans.errors import ConanException
 import os
 import shutil
 
@@ -29,6 +30,10 @@ class VariantConan(ConanFile):
 
     def requirements(self):
         self.requires("gtest/[>=1.8.0]@bincrafters/stable")
+
+    def configure(self):
+        if self.settings.compiler == "Visual Studio" and int(self.settings.compiler.version.value) <= 11:
+            raise ConanException("Requires C++11 initializer_list (MSVC support is > 2012")
 
     def source(self):
         # Source for library
@@ -59,6 +64,7 @@ class VariantConan(ConanFile):
         cmake = CMake(self)
         if self.options.build_tests:
             cmake.definitions["MPARK_VARIANT_INCLUDE_TESTS"] = "mpark"  # Adding 'libc++' will trigger an ExternalProjectAdd for llvm
+            cmake.definitions["CMAKE_CXX_FLAGS"] = "-std=c++11"
         if self.settings.compiler == "Visual Studio" and "MD" in str(self.settings.compiler.runtime):
             cmake.definitions["gtest_force_shared_crt"] = True
         cmake.configure(build_folder=self.build_subfolder)
