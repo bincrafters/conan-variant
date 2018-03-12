@@ -73,4 +73,4 @@ class VariantConan(ConanFile):
     
     def package_info(self):
         if self.settings.compiler == "gcc":
-            self.cpp_info.cppflags = "-std=c++11"
+            self.cpp_info.cppflags = ["-std=c++11", ]
