@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from conans import ConanFile, CMake, tools
-from conans.errors import ConanException
 import os
 import shutil
 
@@ -11,7 +10,8 @@ class VariantConan(ConanFile):
     name = "variant"
     version = "1.3.0"
     url = "https://github.com/bincrafters/conan-variant"
-    description = "C++17 `std::variant` for C++11/14/17 https://mpark.github.io/variant"
+    homepage = "https://github.com/bincrafters/conan-variant"
+    description = "C++17 std::variant for C++11/14/17"
     license = "Boost Software License, Version 1.0"
     exports = ["LICENSE.md"]
 
@@ -33,7 +33,7 @@ class VariantConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler == "Visual Studio" and int(self.settings.compiler.version.value) <= 12:
-            raise ConanException("Required MSVC > 2013") # Required MSVC >= 2013: https://github.com/mpark/variant/blob/v1.3.0/include/mpark/config.hpp#L11
+            raise Exception("Required MSVC > 2013") # Required MSVC >= 2013: https://github.com/mpark/variant/blob/v1.3.0/include/mpark/config.hpp#L11
 
     def source(self):
         # Source for library
@@ -68,18 +68,24 @@ class VariantConan(ConanFile):
         # Rename to "source_subfolder" is a convention to simplify later steps
         os.rename(extracted_dir, self.source_subfolder)
 
-    def build(self):
+    def _configure_cmake(self):
         cmake = CMake(self)
         if self.options.build_tests:
-            cmake.definitions["MPARK_VARIANT_INCLUDE_TESTS"] = "mpark"  # Adding 'libc++' will trigger an ExternalProjectAdd for llvm
+            cmake.definitions[
+                "MPARK_VARIANT_INCLUDE_TESTS"] = "mpark"  # Adding 'libc++' will trigger an ExternalProjectAdd for llvm
             cmake.definitions["CMAKE_CXX_FLAGS"] = "-std=c++11"
         if self.settings.compiler == "Visual Studio" and "MD" in str(self.settings.compiler.runtime):
             cmake.definitions["gtest_force_shared_crt"] = True
         cmake.configure(build_folder=self.build_subfolder)
+        return cmake
+
+    def build(self):
+        cmake = self._configure_cmake()
         cmake.build()
-        cmake.install()
 
     def package(self):
+        cmake = self._configure_cmake()
+        cmake.install()
         self.copy(pattern="LICENSE", dst="license", src=self.source_subfolder)
     
     def package_id(self):
