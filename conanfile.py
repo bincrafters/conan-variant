@@ -33,7 +33,7 @@ class VariantConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler == "Visual Studio" and int(self.settings.compiler.version.value) <= 12:
-            raise Exception("Required MSVC > 2013") # Required MSVC >= 2013: https://github.com/mpark/variant/blob/v1.3.0/include/mpark/config.hpp#L11
+            raise Exception("Required MSVC 2015 Update 3 or superior") #  https://github.com/mpark/variant/blob/v1.3.0/include/mpark/config.hpp#L11
 
     def source(self):
         # Source for library
