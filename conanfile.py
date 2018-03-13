@@ -12,7 +12,7 @@ class VariantConan(ConanFile):
     version = "1.3.0"
     url = "https://github.com/bincrafters/conan-variant"
     description = "C++17 `std::variant` for C++11/14/17 https://mpark.github.io/variant"
-    license = "MIT"
+    license = "Boost Software License, Version 1.0"
     exports = ["LICENSE.md"]
 
     # Remove following lines if the target lib does not use cmake.
