@@ -12,7 +12,7 @@ class VariantConan(ConanFile):
     url = "https://github.com/bincrafters/conan-variant"
     homepage = "https://github.com/bincrafters/conan-variant"
     description = "C++17 std::variant for C++11/14/17"
-    license = "Boost Software License, Version 1.0"
+    license = "BSL-1.0"
     exports = ["LICENSE.md"]
 
     # Remove following lines if the target lib does not use cmake.
@@ -29,7 +29,7 @@ class VariantConan(ConanFile):
     build_subfolder = "build_subfolder"
 
     def requirements(self):
-        self.requires("gtest/[>=1.8.0]@bincrafters/stable")
+        self.requires("gtest/1.8.0@bincrafters/stable")
 
     def configure(self):
         if self.settings.compiler == "Visual Studio" and int(self.settings.compiler.version.value) <= 12:
