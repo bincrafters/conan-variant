@@ -19,17 +19,11 @@ class VariantConan(ConanFile):
     exports_sources = ["CMakeLists.txt"]
     generators = "cmake"
 
-    # Options
     settings = "os", "arch", "compiler", "build_type"
-    options = {"build_tests": [True, False]}
-    default_options = "build_tests=True"
 
     # Bincrafters recipe conventions
     source_subfolder = "source_subfolder"
     build_subfolder = "build_subfolder"
-
-    def requirements(self):
-        self.requires("gtest/1.8.0@bincrafters/stable")
 
     def configure(self):
         if self.settings.compiler == "Visual Studio" and int(self.settings.compiler.version.value) <= 12:
@@ -41,41 +35,19 @@ class VariantConan(ConanFile):
         tools.get("{0}/archive/v{1}.tar.gz".format(source_url, self.version))
         extracted_dir = self.name + "-" + self.version
 
-        # Additional file from gtest (see: https://github.com/mpark/variant/issues/39
-        tools.download("https://raw.githubusercontent.com/google/googletest/release-{version}/googletest/cmake/internal_utils.cmake".format(version=self.deps_cpp_info["gtest"].version),
-                        filename=os.path.join(extracted_dir, 'cmake', 'internal_utils.cmake'))
-
-        # Change CMake requirements: some @lasote docker images are not updated.
+        # Change CMake requirements: some CI jobs are not updated.
         tools.replace_in_file(os.path.join(extracted_dir, "CMakeLists.txt"),
                               "cmake_minimum_required(VERSION 3.6.3)",
                               "cmake_minimum_required(VERSION 3.1)")
-        tools.replace_in_file(os.path.join(extracted_dir, 'test', "CMakeLists.txt"),
-                              "cmake_minimum_required(VERSION 3.6.3)",
-                              "cmake_minimum_required(VERSION 3.1)")
 
-        # Work to remove 'deps' directory (conan will handle them)
+        # Work to remove 'deps' directory, just to be sure.
         shutil.rmtree(os.path.join(extracted_dir, "3rdparty"))
-        tools.replace_in_file(os.path.join(extracted_dir, "test", "CMakeLists.txt"),
-'''
-  add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/googletest/googletest
-                   ${CMAKE_BINARY_DIR}/3rdparty/googletest/googletest)
-''',
-'''
-  include(../cmake/internal_utils.cmake)
-''')
-        tools.replace_in_file(os.path.join(extracted_dir, "test", "CMakeLists.txt"), 'gtest_main', '${CONAN_LIBS_GTEST}')
 
         # Rename to "source_subfolder" is a convention to simplify later steps
         os.rename(extracted_dir, self.source_subfolder)
 
     def _configure_cmake(self):
         cmake = CMake(self)
-        if self.options.build_tests:
-            cmake.definitions[
-                "MPARK_VARIANT_INCLUDE_TESTS"] = "mpark"  # Adding 'libc++' will trigger an ExternalProjectAdd for llvm
-            cmake.definitions["CMAKE_CXX_FLAGS"] = "-std=c++11"
-        if self.settings.compiler == "Visual Studio" and "MD" in str(self.settings.compiler.runtime):
-            cmake.definitions["gtest_force_shared_crt"] = True
         cmake.configure(build_folder=self.build_subfolder)
         return cmake
 
