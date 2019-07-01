@@ -64,4 +64,4 @@ class VariantConan(ConanFile):
         self.info.header_only()
     
     def package_info(self):
-        self.cpp_info.cppflags = ["-std=c++11", ]
+        pass
