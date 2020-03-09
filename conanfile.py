@@ -11,15 +11,11 @@ class VariantConan(ConanFile):
     homepage = "https://github.com/bincrafters/conan-variant"
     description = "C++17 std::variant for C++11/14/17"
     license = "BSL-1.0"
-    exports = ["LICENSE.md"]
-
-    # Remove following lines if the target lib does not use cmake.
     exports_sources = ["CMakeLists.txt"]
     generators = "cmake"
 
     settings = "os", "arch", "compiler", "build_type"
 
-    # Bincrafters recipe conventions
     _source_subfolder = "source_subfolder"
     _build_subfolder = "build_subfolder"
 
@@ -28,20 +24,13 @@ class VariantConan(ConanFile):
             raise ConanInvalidConfiguration("Required MSVC 2015 Update 3 or superior")  # https://github.com/mpark/variant/blob/v1.3.0/include/mpark/config.hpp#L11
 
     def source(self):
-        # Source for library
         source_url = "https://github.com/mpark/variant"
         tools.get("{0}/archive/v{1}.tar.gz".format(source_url, self.version))
         extracted_dir = self.name + "-" + self.version
 
-        # Change CMake requirements: some CI jobs are not updated.
-        tools.replace_in_file(os.path.join(extracted_dir, "CMakeLists.txt"),
-                              "cmake_minimum_required(VERSION 3.6.3)",
-                              "cmake_minimum_required(VERSION 3.1)")
-
         # Work to remove 'deps' directory, just to be sure.
         shutil.rmtree(os.path.join(extracted_dir, "3rdparty"))
 
-        # Rename to "source_subfolder" is a convention to simplify later steps
         os.rename(extracted_dir, self._source_subfolder)
 
     def _configure_cmake(self):
